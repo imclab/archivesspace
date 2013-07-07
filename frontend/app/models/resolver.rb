@@ -7,7 +7,7 @@ class Resolver
     jsonmodel_properties = JSONModel.parse_reference(@uri)
 
     @id = jsonmodel_properties[:id]
-    @repo_id = jsonmodel_properties[:repo_id]
+    @repo_id = JSONModel(:repository).id_for(jsonmodel_properties[:repository])
     @jsonmodel_type = jsonmodel_properties[:type]
   end
 
@@ -27,6 +27,11 @@ class Resolver
     uri_properties[:action] = :show
 
     uri_properties
+  end
+
+
+  def repo_id
+    @repo_id
   end
 
 

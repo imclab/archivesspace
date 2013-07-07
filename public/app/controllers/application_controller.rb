@@ -42,6 +42,12 @@ class ApplicationController < ActionController::Base
     redirect_to request.url
   end
 
+  helper_method :staff_link
+  def staff_link(uri)
+    return if !can_show_staff_link?
+    view_context.link_to I18n.t("actions.staff_view"), "#{AppConfig[:frontend_url]}resolve/readonly?uri=#{uri}", :class => "btn btn-mini pull-right staff-link", :target => "_blank"
+  end
+
   protected
 
   def assign_repositories
@@ -64,6 +70,15 @@ class ApplicationController < ActionController::Base
     end
 
     params_for_search
+  end
+
+
+  private
+
+  def can_show_staff_link?
+    return AppConfig[:public_show_staff_link].call(request) if AppConfig[:public_show_staff_link].lambda?
+
+    AppConfig[:public_show_staff_link] === true
   end
 
 end
