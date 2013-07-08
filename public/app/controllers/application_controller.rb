@@ -76,7 +76,7 @@ class ApplicationController < ActionController::Base
   private
 
   def can_show_staff_link?
-    return AppConfig[:public_show_staff_link].call(request) if AppConfig[:public_show_staff_link].lambda?
+    return AppConfig[:public_show_staff_link].call(request, session) if AppConfig[:public_show_staff_link].lambda?
 
     AppConfig[:public_show_staff_link] === true
   end
