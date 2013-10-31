@@ -3,3 +3,5 @@ source "http://rubygems.org"
 
 gem "selenium-webdriver"
 gem "rspec"
+
+gem "rubyzip", "= 0.9.9"

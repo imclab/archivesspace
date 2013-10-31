@@ -31,3 +31,6 @@ end
 
 gem "net-http-persistent"
 gem "rjack-jackson"
+
+gem "rubyzip", "= 0.9.9"
+gem "rake", "= 10.0.4"

@@ -27,4 +27,5 @@ PLATFORMS
 
 DEPENDENCIES
   rspec
+  rubyzip (= 0.9.9)
   selenium-webdriver

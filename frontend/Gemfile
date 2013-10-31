@@ -69,3 +69,6 @@ gem "json"
 gem "puma"
 
 gem "net-http-persistent"
+
+gem "rubyzip", "= 0.9.9"
+gem "rake", "= 10.0.4"
