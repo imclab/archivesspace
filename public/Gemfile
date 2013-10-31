@@ -17,7 +17,7 @@ gem 'jquery-rails'
 gem 'json-schema'
 
 gem "jruby-jars", "= 1.7.6"
-gem "jruby-openssl"
+gem "jruby-openssl", "= 0.8.8"
 
 gem 'atomic', '= 1.0.1'
 gem "puma"

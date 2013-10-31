@@ -7,8 +7,6 @@ gem 'rails', '3.2.13'
 
 gem 'activerecord-jdbcsqlite3-adapter'
 
-gem 'jruby-openssl'
-
 # Gems used only for assets and not required
 # in production environments by default.
 group :assets do
@@ -29,7 +27,7 @@ gem 'useragent'
 
 gem "jruby-jars", "= 1.7.6"
 
-gem "jruby-openssl"
+gem "jruby-openssl", "= 0.8.8"
 
 gem 'warbler', ">= 1.4.0.beta2"
 

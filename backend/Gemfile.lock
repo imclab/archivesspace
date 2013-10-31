@@ -94,7 +94,7 @@ DEPENDENCIES
   jdbc-derby
   jdbc-mysql
   jruby-jars (= 1.7.6)
-  jruby-openssl
+  jruby-openssl (= 0.8.8)
   json
   json-schema
   ladle

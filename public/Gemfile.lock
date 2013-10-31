@@ -130,12 +130,13 @@ DEPENDENCIES
   coffee-rails (~> 3.2.1)
   jquery-rails
   jruby-jars (= 1.7.6)
-  jruby-openssl
+  jruby-openssl (= 0.8.8)
   json-schema
   less-rails
   net-http-persistent
   puma
   rails (= 3.2.13)
+  rake (= 10.0.4)
   rubyzip (= 0.9.9)
   sass-rails (~> 3.2.3)
   therubyrhino
