@@ -141,4 +141,6 @@ Warbler::Config.new do |config|
 
   # JNDI data source name
   # config.webxml.jndi = 'jdbc/rails'
+
+  config.override_gem_home = false
 end
