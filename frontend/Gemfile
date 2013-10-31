@@ -31,7 +31,7 @@ gem "jruby-jars", "= 1.7.6"
 
 gem "jruby-openssl"
 
-gem 'warbler'
+gem 'warbler', ">= 1.4.0.beta2"
 
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'
