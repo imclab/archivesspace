@@ -154,8 +154,18 @@
         <%= render :partial => "shared/form_messages", :locals => {:form => form} %>
 
         <p>
-          <button class="btn btn-small btn-success add-row"><%= I18n.t("rde.actions.add_row") %></button>
+          <div class="btn-group">
+            <button class="btn btn-small btn-success add-row"><%= I18n.t("rde.actions.add_row") %></button>
+            <button class="btn btn-small btn-success dropdown-toggle" data-toggle="dropdown">
+              <span class="caret"></span>
+            </button>
+            <div class="dropdown-menu add-rows-form">
+              <div><input type="number" class="input-medium" value="1" /></div>
+              <button class="btn btn-small input-medium btn-success" type="button">Add Rows</button>
+            </div>
+          </div>
           <select id="rde_hidden_columns" multiple="multiple" data-i18n-prefix="<%= I18n.t("rde.actions.showhide_prefix") %>" data-i18n-suffix="<%= I18n.t("rde.actions.showhide_suffix") %>" data-i18n-none="<%= I18n.t("rde.actions.showhide_none") %>"></select>
+
           <a href="#" id="rde_reset" class="btn btn-small"><%= I18n.t("rde.actions.reset") %></a>
         </p>
 
@@ -239,7 +249,16 @@
           </tbody>
         </table>
         <p>
-          <button class="btn btn-small btn-success add-row"><%= I18n.t("rde.actions.add_row") %></button>
+          <div class="btn-group">
+            <button class="btn btn-small btn-success add-row"><%= I18n.t("rde.actions.add_row") %></button>
+            <button class="btn btn-small btn-success dropdown-toggle" data-toggle="dropdown">
+              <span class="caret"></span>
+            </button>
+            <div class="dropdown-menu add-rows-form">
+              <div><input type="number" class="input-medium" value="1" /></div>
+              <button class="btn btn-small input-medium btn-success" type="button">Add Rows</button>
+            </div>
+          </div>
         </p>
         <div class="row">
           <div class="well span12">

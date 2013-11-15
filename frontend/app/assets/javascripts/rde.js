@@ -62,6 +62,12 @@ $(function() {
         event.preventDefault();
         event.stopPropagation();
 
+        var $row = addRow();
+
+        $(":input:visible:first", $row).focus();
+      });
+
+      var addRow = function() {
         var $currentRow = $(event.target).closest("tr");
         if ($currentRow.length === 0) {
           $currentRow = $("table tbody tr:last", $this);
@@ -104,8 +110,8 @@ $(function() {
         });
 
         $currentRow.after($row);
-        $(":input:visible:first", $row).focus();
-      });
+        return $row;
+      };
 
       $modal.off("keydown").on("keydown", function(event) {
         if (event.keyCode === 27) { //esc
@@ -375,6 +381,24 @@ $(function() {
         $(this).attr("disabled","disabled");
         $this.submit();
       });
+
+      // enable form within the add row dropdown menu
+      $(".add-rows-form input", $modal).click(function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+      });
+      $(".add-rows-form button", $modal).click(function() {
+        try {
+          var numberOfRows = parseInt($("input", $(this).closest('.add-rows-form')).val(), 10);
+          for (var i=1; i<=numberOfRows; i++) {
+            addRow();
+          }
+        } catch(e) {
+        }
+      });
+
+      // fill function
+
 
       initAjaxForm();
 
