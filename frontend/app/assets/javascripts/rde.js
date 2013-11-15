@@ -236,6 +236,10 @@ $(function() {
       };
 
       var initFillFeature = function() {
+        var $fillFormsContainer = $(".fill-column-form", $modal);
+        var $btnFillFormToggle = $("button.fill-column", $modal);
+
+
         // populate the column selectors
         populateColumnSelector($("#basicFillTargetColumn", $modal));
 
@@ -244,41 +248,54 @@ $(function() {
           event.preventDefault();
           event.stopPropagation();
 
-          $(this).toggleClass("active");
-          $(".fill-column-form", $modal).slideToggle();
+          $btnFillFormToggle.toggleClass("active");
+          $fillFormsContainer.slideToggle();
         });
 
         // Setup Basic Fill form
-        $("#basicFillTargetColumn", $modal).change(function() {
-          $(".empty", this).remove();
-          var $sourceRow = $("table tbody tr:first", $this);
-          var $input = $(":input:first", $("td", $sourceRow).get($(this).val())).clone();
-          $input.attr("name", "").attr("id", "basicFillValue");
-          $(".fill-value-container", $modal).html($input);
-          $("#fill_basic button", $modal).removeAttr("disabled").removeClass("disabled");
-        });
-        $("#fill_basic button", $modal).click(function(event) {
-          event.preventDefault();
-          event.stopPropagation();
+        var setupBasicFillForm = function() {
+          var $form = $("#fill_basic", $fillFormsContainer);
+          var $inputTargetColumn = $("#basicFillTargetColumn", $form);
+          var $btnBasicFill = $("button", $form);
 
-          var $targetCells = $("table tbody tr td:nth-child("+(parseInt($("#basicFillTargetColumn",$modal).val())+1)+")", $this);
+          $inputTargetColumn.change(function() {
+            $(".empty", this).remove();
+            var $sourceRow = $("table tbody tr:first", $this);
+            var $input = $(":input:first", $("td", $sourceRow).get($(this).val())).clone();
+            $input.attr("name", "").attr("id", "basicFillValue");
+            $(".fill-value-container", $form).html($input);
+            $btnBasicFill.removeAttr("disabled").removeClass("disabled");
+          });
 
-          if ($("#basicFillValue",$modal).is(":checkbox")) {
-            var fillValue = $("#basicFillValue",$modal).is(":checked");
-            if (fillValue) {
-              $(":input:first", $targetCells).attr("checked", "checked");
+          $btnBasicFill.click(function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            var $targetCells = $("table tbody tr td:nth-child("+(parseInt($("#basicFillTargetColumn",$modal).val())+1)+")", $this);
+
+            if ($("#basicFillValue",$form).is(":checkbox")) {
+              var fillValue = $("#basicFillValue",$form).is(":checked");
+              if (fillValue) {
+                $(":input:first", $targetCells).attr("checked", "checked");
+              } else {
+                $(":input:first", $targetCells).removeAttr("checked");
+              }
             } else {
-              $(":input:first", $targetCells).removeAttr("checked");
+              var fillValue = $("#basicFillValue",$form).val();
+              $(":input:first", $targetCells).val(fillValue);
             }
-          } else {
-            var fillValue = $("#basicFillValue",$modal).val();
-            $(":input:first", $targetCells).val(fillValue);
-          }
 
+            $btnFillFormToggle.toggleClass("active");
+            $fillFormsContainer.slideToggle();
+          });
+        };
 
-          $("button.fill-column", $modal).toggleClass("active");
-          $(".fill-column-form", $modal).slideToggle();
-        });
+        // Setup Sequence Fill form
+        var setupSequenceFillForm = function() {
+
+        };
+        setupBasicFillForm();
+        setupSequenceFillForm();
       };
 
       var populateColumnSelector = function($select) {
