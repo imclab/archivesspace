@@ -165,9 +165,40 @@
             </div>
           </div>
           <select id="rde_hidden_columns" multiple="multiple" data-i18n-prefix="<%= I18n.t("rde.actions.showhide_prefix") %>" data-i18n-suffix="<%= I18n.t("rde.actions.showhide_suffix") %>" data-i18n-none="<%= I18n.t("rde.actions.showhide_none") %>"></select>
-
+          <button class="btn btn-small fill-column">Fill Column</button>
           <a href="#" id="rde_reset" class="btn btn-small"><%= I18n.t("rde.actions.reset") %></a>
         </p>
+
+        <div class="fill-column-form" style="display: none;">
+          <ul class="nav nav-tabs">
+            <li class="active"><a href="#fill_basic" data-toggle="tab">Basic</a></li>
+            <li><a href="#fill_sequence" data-toggle="tab">Sequence</a></li>
+          </ul>
+          <div class="tab-content">
+            <div class="tab-pane active" id="fill_basic">
+              <fieldset>
+                <div class="control-group">
+                  <label class="control-label" for="basicFillTargetColumn">Column</label>
+                  <div class="controls">
+                    <select id="basicFillTargetColumn"><option selected="selected" class="empty"></option></select>
+                  </div>
+                </div>
+                <div class="control-group">
+                  <label class="control-label" for="basicFillTargetColumn">Fill Value</label>
+                  <div class="controls fill-value-container">
+                    <div class="alert alert-info">Please select a Column</div>
+                  </div>
+                </div>
+                <div class="control-group">
+                  <div class="controls">
+                    <button class="btn btn-primary btn-small disabled" disabled="disabled">Apply Basic Fill</button>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+            <div class="tab-pane" id="fill_sequence">Woot2</div>
+          </div>
+        </div>
 
         <table class="table table-striped table-bordered table-condensed" style="width: auto; margin-right: 20px;">
           <colgroup>

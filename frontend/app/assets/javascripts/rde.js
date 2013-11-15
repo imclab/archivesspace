@@ -232,17 +232,69 @@ $(function() {
 
         applyPersistentStickyColumns();
         initColumnShowHideWidget();
+        initFillFeature();
+      };
+
+      var initFillFeature = function() {
+        // populate the column selectors
+        populateColumnSelector($("#basicFillTargetColumn", $modal));
+
+        // Setup global events
+        $("button.fill-column", $modal).click(function(event) {
+          event.preventDefault();
+          event.stopPropagation();
+
+          $(this).toggleClass("active");
+          $(".fill-column-form", $modal).slideToggle();
+        });
+
+        // Setup Basic Fill form
+        $("#basicFillTargetColumn", $modal).change(function() {
+          $(".empty", this).remove();
+          var $sourceRow = $("table tbody tr:first", $this);
+          var $input = $(":input:first", $("td", $sourceRow).get($(this).val())).clone();
+          $input.attr("name", "").attr("id", "basicFillValue");
+          $(".fill-value-container", $modal).html($input);
+          $("#fill_basic button", $modal).removeAttr("disabled").removeClass("disabled");
+        });
+        $("#fill_basic button", $modal).click(function(event) {
+          event.preventDefault();
+          event.stopPropagation();
+
+          var $targetCells = $("table tbody tr td:nth-child("+(parseInt($("#basicFillTargetColumn",$modal).val())+1)+")", $this);
+
+          if ($("#basicFillValue",$modal).is(":checkbox")) {
+            var fillValue = $("#basicFillValue",$modal).is(":checked");
+            if (fillValue) {
+              $(":input:first", $targetCells).attr("checked", "checked");
+            } else {
+              $(":input:first", $targetCells).removeAttr("checked");
+            }
+          } else {
+            var fillValue = $("#basicFillValue",$modal).val();
+            $(":input:first", $targetCells).val(fillValue);
+          }
+
+
+          $("button.fill-column", $modal).toggleClass("active");
+          $(".fill-column-form", $modal).slideToggle();
+        });
+      };
+
+      var populateColumnSelector = function($select) {
+        $(".fieldset-labels th", $this).each(function() {
+          if ($(this).hasClass("fieldset-label")) {
+            var $option = $("<option>");
+            $option.val($(this).index()).text($(this).text());
+            $select.append($option);
+          }
+        });
       };
 
       var initColumnShowHideWidget = function() {
         var $select = $("#rde_hidden_columns");
-        $(".fieldset-labels th", $this).each(function() {
-          if ($(this).hasClass("fieldset-label")) {
-            var $option = $("<option>");
-            $option.val($(this).index()).text($(this).text()).attr("selected", "selected");
-            $select.append($option);
-          }
-        });
+        populateColumnSelector($select);
+        $("option", $select).attr("selected", "selected");
         $select.multiselect({
           buttonClass: 'btn btn-small',
           buttonWidth: 'auto',
@@ -377,7 +429,7 @@ $(function() {
       };
 
       // Connect up the $modal form submit button
-      $($modal).on("click", ".btn-primary", function() {
+      $($modal).on("click", ".modal-footer .btn-primary", function() {
         $(this).attr("disabled","disabled");
         $this.submit();
       });
@@ -394,11 +446,9 @@ $(function() {
             addRow();
           }
         } catch(e) {
+          // if the field cannot parse the form value to an integer.. just quietly judge the user
         }
       });
-
-      // fill function
-
 
       initAjaxForm();
 
