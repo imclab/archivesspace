@@ -294,7 +294,8 @@ $(function() {
         var setupSequenceFillForm = function() {
           var $form = $("#fill_sequence", $fillFormsContainer);
           var $inputTargetColumn = $("#sequenceFillTargetColumn", $form);
-          var $btnFill = $("button", $form);
+          var $btnFill = $("button.btn-primary", $form);
+          var $sequencePreview = $(".sequence-preview", $form);
 
           // populate the column selectors
           populateColumnSelector($inputTargetColumn, function($colHeader) {
@@ -306,7 +307,89 @@ $(function() {
             $(".empty", this).remove();
             $btnFill.removeAttr("disabled").removeClass("disabled");
           });
+
+          $("button.preview-sequence", $form).click(function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            $.getJSON($form.data("sequence-generator-url"),
+                      {
+                        prefix: $("#sequenceFillPrefix", $form).val(),
+                        from: $("#sequenceFillFrom", $form).val(),
+                        to: $("#sequenceFillTo", $form).val(),
+                        suffix: $("#sequenceFillSuffix", $form).val()
+                      },
+                      function(json) {
+                        $sequencePreview.html("");
+                        if (json.errors) {
+                          $.each(json.errors, function(i, error) {
+                            var $error = $("<div>").html(error).addClass("text-error");
+                            $sequencePreview.append($error);
+                          });
+                        } else {
+                          $sequencePreview.html($("<p class='values'>").html(json.values.join(", ")));
+                          $sequencePreview.prepend($("<p class='summary'>").html(json.summary));
+                        }
+                      }
+            );
+          });
+
+          var applySequenceFill = function(force) {
+            $("#sequenceTooSmallMsg", $form).hide();
+
+            $.getJSON($form.data("sequence-generator-url"),
+                {
+                  prefix: $("#sequenceFillPrefix", $form).val(),
+                  from: $("#sequenceFillFrom", $form).val(),
+                  to: $("#sequenceFillTo", $form).val(),
+                  suffix: $("#sequenceFillSuffix", $form).val()
+                },
+                function(json) {
+                  $sequencePreview.html("");
+                  if (json.errors) {
+                    $.each(json.errors, function(i, error) {
+                      var $error = $("<div>").html(error).addClass("text-error");
+                      $sequencePreview.append($error);
+                    });
+                    return;
+                  }
+
+                  // check if less items in sequence than rows
+                  if (!force && json.values.length < $("tbody tr", $modal).length) {
+                    $("#sequenceTooSmallMsg", $form).show();
+                    return;
+                  }
+
+                  // Good to go. Apply values.
+                  var $targetCells = $("table tbody tr td:nth-child("+(parseInt($inputTargetColumn.val())+1)+")", $this);
+                  $.each(json.values, function(i, val) {
+                    if (i > $targetCells.length) {
+                      return;
+                    }
+                    $(":input:first", $targetCells[i]).val(val);
+                  });
+
+                  $btnFillFormToggle.toggleClass("active");
+                  $fillFormsContainer.slideToggle();
+                }
+            );
+          }
+
+          $btnFill.click(function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            applySequenceFill(false);
+          });
+
+          $(".btn-continue-sequence-fill", $form).click(function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            applySequenceFill(true);
+          });
         };
+
         setupBasicFillForm();
         setupSequenceFillForm();
       };

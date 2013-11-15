@@ -194,7 +194,11 @@
                 </div>
               </fieldset>
             </div>
-            <div class="tab-pane" id="fill_sequence">
+            <div class="tab-pane" id="fill_sequence" data-sequence-generator-url="<%= url_for :controller => :archival_objects, :action => :generate_sequence %>">
+              <div class="alert alert-warning" id="sequenceTooSmallMsg" style="display: none;">
+                <p>There are more rows than there are items in the sequence.</p>
+                <button class="btn btn-warning btn-small btn-continue-sequence-fill">Continue Anyway</button>
+              </div>
               <fieldset>
                 <div class="control-group">
                   <label class="control-label" for="sequenceFillTargetColumn">Column</label>
@@ -203,14 +207,17 @@
                   </div>
                 </div>
                 <div class="control-group">
-                  <label class="control-label" for="basicFillTargetColumn">Fill Value</label>
+                  <label class="control-label">Fill Value</label>
                   <div class="controls fill-value-container">
                     <input id="sequenceFillPrefix" class="input-mini" type="text" placeholder="Prefix"/>
                     <input id="sequenceFillFrom" class="input-mini" type="text" placeholder="From"/> -
                     <input id="sequenceFillTo" class="input-mini" type="text" placeholder="To"/>
                     <input id="sequenceFillSuffix" class="input-mini" type="text" placeholder="Suffix"/>
-                    <button class="btn btn-small">Preview Sequence Values</button>
+                    <button class="btn btn-small preview-sequence">Preview Sequence Values</button>
                   </div>
+                </div>
+                <div class="control-group">
+                  <div class="controls sequence-preview"></div>
                 </div>
                 <div class="form-actions">
                   <button class="btn btn-primary btn-small disabled" disabled="disabled">Apply Sequence</button>

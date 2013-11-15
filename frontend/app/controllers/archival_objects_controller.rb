@@ -1,6 +1,6 @@
 class ArchivalObjectsController < ApplicationController
 
-  set_access_control  "view_repository" => [:index, :show],
+  set_access_control  "view_repository" => [:index, :show, :generate_sequence],
                       "update_archival_record" => [:new, :edit, :create, :update, :transfer, :rde, :add_children, :accept_children],
                       "delete_archival_record" => [:delete]
 
@@ -151,5 +151,20 @@ class ArchivalObjectsController < ApplicationController
     render :partial => "archival_objects/rde"
   end
 
+
+  def generate_sequence
+    errors = []
+    errors.push("From is required") if params[:from].blank?
+    errors.push("To is required") if params[:to].blank?
+
+    return render :json => {"errors" => errors} if errors.length > 0
+
+    values = (params["from"]..params["to"]).map{|i| "#{params["prefix"]}#{i}#{params["suffix"]}"}
+
+    render :json => {
+      "values" => values,
+      "summary" => "#{values.count} items in the sequence:"
+    }
+  end
 
 end
