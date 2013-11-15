@@ -239,9 +239,7 @@ $(function() {
         var $fillFormsContainer = $(".fill-column-form", $modal);
         var $btnFillFormToggle = $("button.fill-column", $modal);
 
-
-        // populate the column selectors
-        populateColumnSelector($("#basicFillTargetColumn", $modal));
+        var $sourceRow = $("table tbody tr:first", $this);
 
         // Setup global events
         $("button.fill-column", $modal).click(function(event) {
@@ -256,22 +254,24 @@ $(function() {
         var setupBasicFillForm = function() {
           var $form = $("#fill_basic", $fillFormsContainer);
           var $inputTargetColumn = $("#basicFillTargetColumn", $form);
-          var $btnBasicFill = $("button", $form);
+          var $btnFill = $("button", $form);
+
+          // populate the column selectors
+          populateColumnSelector($inputTargetColumn);
 
           $inputTargetColumn.change(function() {
             $(".empty", this).remove();
-            var $sourceRow = $("table tbody tr:first", $this);
             var $input = $(":input:first", $("td", $sourceRow).get($(this).val())).clone();
             $input.attr("name", "").attr("id", "basicFillValue");
             $(".fill-value-container", $form).html($input);
-            $btnBasicFill.removeAttr("disabled").removeClass("disabled");
+            $btnFill.removeAttr("disabled").removeClass("disabled");
           });
 
-          $btnBasicFill.click(function(event) {
+          $btnFill.click(function(event) {
             event.preventDefault();
             event.stopPropagation();
 
-            var $targetCells = $("table tbody tr td:nth-child("+(parseInt($("#basicFillTargetColumn",$modal).val())+1)+")", $this);
+            var $targetCells = $("table tbody tr td:nth-child("+(parseInt($inputTargetColumn.val())+1)+")", $this);
 
             if ($("#basicFillValue",$form).is(":checkbox")) {
               var fillValue = $("#basicFillValue",$form).is(":checked");
@@ -292,15 +292,29 @@ $(function() {
 
         // Setup Sequence Fill form
         var setupSequenceFillForm = function() {
+          var $form = $("#fill_sequence", $fillFormsContainer);
+          var $inputTargetColumn = $("#sequenceFillTargetColumn", $form);
+          var $btnFill = $("button", $form);
 
+          // populate the column selectors
+          populateColumnSelector($inputTargetColumn, function($colHeader) {
+            var $td = $("td", $sourceRow).get($colHeader.index());
+            return $(":input:first", $td).is(":text");
+          });
+
+          $inputTargetColumn.change(function() {
+            $(".empty", this).remove();
+            $btnFill.removeAttr("disabled").removeClass("disabled");
+          });
         };
         setupBasicFillForm();
         setupSequenceFillForm();
       };
 
-      var populateColumnSelector = function($select) {
+      var populateColumnSelector = function($select, filter_func) {
+        filter_func = filter_func || function() {return true;};
         $(".fieldset-labels th", $this).each(function() {
-          if ($(this).hasClass("fieldset-label")) {
+          if ($(this).hasClass("fieldset-label") && filter_func($(this))) {
             var $option = $("<option>");
             $option.val($(this).index()).text($(this).text());
             $select.append($option);

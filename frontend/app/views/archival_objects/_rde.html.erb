@@ -189,14 +189,34 @@
                     <div class="alert alert-info">Please select a Column</div>
                   </div>
                 </div>
-                <div class="control-group">
-                  <div class="controls">
-                    <button class="btn btn-primary btn-small disabled" disabled="disabled">Apply Basic Fill</button>
-                  </div>
+                <div class="form-actions">
+                  <button class="btn btn-primary btn-small disabled" disabled="disabled">Apply Basic Fill</button>
                 </div>
               </fieldset>
             </div>
-            <div class="tab-pane" id="fill_sequence">Woot2</div>
+            <div class="tab-pane" id="fill_sequence">
+              <fieldset>
+                <div class="control-group">
+                  <label class="control-label" for="sequenceFillTargetColumn">Column</label>
+                  <div class="controls">
+                    <select id="sequenceFillTargetColumn"><option selected="selected" class="empty"></option></select>
+                  </div>
+                </div>
+                <div class="control-group">
+                  <label class="control-label" for="basicFillTargetColumn">Fill Value</label>
+                  <div class="controls fill-value-container">
+                    <input id="sequenceFillPrefix" class="input-mini" type="text" placeholder="Prefix"/>
+                    <input id="sequenceFillFrom" class="input-mini" type="text" placeholder="From"/> -
+                    <input id="sequenceFillTo" class="input-mini" type="text" placeholder="To"/>
+                    <input id="sequenceFillSuffix" class="input-mini" type="text" placeholder="Suffix"/>
+                    <button class="btn btn-small">Preview Sequence Values</button>
+                  </div>
+                </div>
+                <div class="form-actions">
+                  <button class="btn btn-primary btn-small disabled" disabled="disabled">Apply Sequence</button>
+                </div>
+              </fieldset>
+            </div>
           </div>
         </div>
 
