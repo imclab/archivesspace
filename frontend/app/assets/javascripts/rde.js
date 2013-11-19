@@ -15,8 +15,8 @@ $(function() {
       }
 
       // Config from Cookies
-      var VISIBLE_COLUMN_INDEXES =  $.cookie("rde.visible") ? JSON.parse($.cookie("rde.visible")) : null;
-      var STICKY_COLUMN_INDEXES =  $.cookie("rde.sticky") ? JSON.parse($.cookie("rde.sticky")) : null;
+      var VISIBLE_COLUMN_IDS =  $.cookie("rde.visible") ? JSON.parse($.cookie("rde.visible")) : null;
+      var STICKY_COLUMN_IDS =  $.cookie("rde.sticky") ? JSON.parse($.cookie("rde.sticky")) : null;
       var COLUMN_WIDTHS =  $.cookie("rde.widths") ? JSON.parse($.cookie("rde.widths")) : null;
 
 
@@ -50,8 +50,8 @@ $(function() {
         $.cookie("rde.visible", null);
         $.cookie("rde.widths", null);
         $.cookie("rde.sticky", null);
-        VISIBLE_COLUMN_INDEXES = null;
-        STICKY_COLUMN_INDEXES = null;
+        VISIBLE_COLUMN_IDS = null;
+        STICKY_COLUMN_IDS = null;
         COLUMN_WIDTHS = null;
 
         // reload the form
@@ -104,7 +104,7 @@ $(function() {
           }
 
           // Apply hidden columns
-          if ($th.hasClass("fieldset-label") && !isVisible(i)) {
+          if ($th.hasClass("fieldset-label") && !isVisible($th.attr("id"))) {
             $($("td", $row).get(i)).hide();
           }
         });
@@ -168,10 +168,10 @@ $(function() {
         $(this).toggleClass("sticky");
         var sticky = [];
         $("table th.sticky", $this).each(function() {
-          sticky.push($(this).index());
+          sticky.push($(this).attr("id"));
         });
-        STICKY_COLUMN_INDEXES = sticky;
-        $.cookie("rde.sticky", JSON.stringify(STICKY_COLUMN_INDEXES));
+        STICKY_COLUMN_IDS = sticky;
+        $.cookie("rde.sticky", JSON.stringify(STICKY_COLUMN_IDS));
       });
 
       $modal.on("click", "[data-dismiss]", function(event) {
@@ -230,6 +230,12 @@ $(function() {
         // add show/hide
         $table.columnManager();
 
+        // give the columns an id
+        $("table thead .fieldset-labels th").each(function(i, col) {
+          $(col).attr("id", "rdecol"+i);
+          $($("table colgroup col").get(i)).data("id", $(col).attr("id"));
+        });
+
         applyPersistentStickyColumns();
         initColumnShowHideWidget();
         initFillFeature();
@@ -261,7 +267,10 @@ $(function() {
 
           $inputTargetColumn.change(function() {
             $(".empty", this).remove();
-            var $input = $(":input:first", $("td", $sourceRow).get($(this).val())).clone();
+
+            var colIndex = parseInt($("#"+$(this).val()).index());
+
+            var $input = $(":input:first", $("td", $sourceRow).get(colIndex)).clone();
             $input.attr("name", "").attr("id", "basicFillValue");
             $(".fill-value-container", $form).html($input);
             $btnFill.removeAttr("disabled").removeClass("disabled");
@@ -271,7 +280,9 @@ $(function() {
             event.preventDefault();
             event.stopPropagation();
 
-            var $targetCells = $("table tbody tr td:nth-child("+(parseInt($inputTargetColumn.val())+1)+")", $this);
+            var colIndex = parseInt($("#"+$inputTargetColumn.val()).index())+1;
+
+            var $targetCells = $("table tbody tr td:nth-child("+colIndex+")", $this);
 
             if ($("#basicFillValue",$form).is(":checkbox")) {
               var fillValue = $("#basicFillValue",$form).is(":checked");
@@ -298,7 +309,7 @@ $(function() {
           var $sequencePreview = $(".sequence-preview", $form);
 
           // populate the column selectors
-          populateColumnSelector($inputTargetColumn, function($colHeader) {
+          populateColumnSelector($inputTargetColumn, null, function($colHeader) {
             var $td = $("td", $sourceRow).get($colHeader.index());
             return $(":input:first", $td).is(":text");
           });
@@ -394,12 +405,17 @@ $(function() {
         setupSequenceFillForm();
       };
 
-      var populateColumnSelector = function($select, filter_func) {
+      var populateColumnSelector = function($select, select_func, filter_func) {
         filter_func = filter_func || function() {return true;};
+        select_func = select_func || function() {return false;};
         $(".fieldset-labels th", $this).each(function() {
-          if ($(this).hasClass("fieldset-label") && filter_func($(this))) {
+          var $colHeader = $(this);
+          if ($colHeader.hasClass("fieldset-label") && filter_func($colHeader)) {
             var $option = $("<option>");
-            $option.val($(this).index()).text($(this).text());
+            $option.val($colHeader.attr("id")).text($colHeader.text());
+            if (select_func($colHeader)) {
+              $option.attr("selected", "selected");
+            }
             $select.append($option);
           }
         });
@@ -407,8 +423,9 @@ $(function() {
 
       var initColumnShowHideWidget = function() {
         var $select = $("#rde_hidden_columns");
-        populateColumnSelector($select);
-        $("option", $select).attr("selected", "selected");
+        populateColumnSelector($select, function($colHeader) {
+          return isVisible($colHeader.attr("id"));
+        });
         $select.multiselect({
           buttonClass: 'btn btn-small',
           buttonWidth: 'auto',
@@ -431,7 +448,8 @@ $(function() {
           },
           onChange: function($option, checked) {
             var widths = persistColumnWidths();
-            var index = parseInt($option.val());
+            var colId = $option.val();
+            var index = $("#" + colId).index();
 
             if (checked) {
               $table.showColumns(index+1);
@@ -442,8 +460,8 @@ $(function() {
               hideColumn(index);
             }
 
-            VISIBLE_COLUMN_INDEXES = $select.val();
-            $.cookie("rde.visible", JSON.stringify(VISIBLE_COLUMN_INDEXES));
+            VISIBLE_COLUMN_IDS = $select.val();
+            $.cookie("rde.visible", JSON.stringify(VISIBLE_COLUMN_IDS));
           }
         });
 
@@ -451,12 +469,12 @@ $(function() {
       };
 
       var persistColumnWidths = function() {
-        var widths = [];
-        $("table colgroup col", $this).each(function() {
-          if ($(this).width() === 0) {
-            $(this).width($(this).data("default-width"));
+        var widths = {};
+        $("table colgroup col", $this).each(function(i, col) {
+          if ($(col).width() === 0) {
+            $(col).width($(col).data("default-width"));
           }
-          widths.push($(this).width());
+          widths[$(col).data("id")] = $(col).width();
         });
 
         COLUMN_WIDTHS = widths;
@@ -465,20 +483,22 @@ $(function() {
         return COLUMN_WIDTHS;
       };
 
-      var setColumnWidth = function(index) {
-        var width = getColumnWidth(index);
+      var setColumnWidth = function(colId) {
+        var width = getColumnWidth(colId);
+        var index = $("#"+colId).index();
 
+        // set width of corresponding col element
         $($("table colgroup col", $this).get(index)).width(width);
 
         return width;
       };
 
-      var getColumnWidth = function(index) {
+      var getColumnWidth = function(colId) {
         if ( COLUMN_WIDTHS ) {
-          return COLUMN_WIDTHS[index];
+          return COLUMN_WIDTHS[colId];
         } else {
           persistColumnWidths();
-          return getColumnWidth(index);
+          return getColumnWidth(colId);
         }
       };
 
@@ -486,7 +506,7 @@ $(function() {
         var total_width = 0;
 
         $("table colgroup col", $this).each(function(i, el) {
-          var colW = getColumnWidth(i);
+          var colW = getColumnWidth($(el).attr("id"));
           $(el).width(colW);
           total_width += colW;
         });
@@ -495,37 +515,38 @@ $(function() {
       };
 
       var applyPersistentStickyColumns = function() {
-        if ( STICKY_COLUMN_INDEXES ) {
+        if ( STICKY_COLUMN_IDS ) {
           $("th.sticky", $this).removeClass("sticky");
-          $.each(STICKY_COLUMN_INDEXES, function() {
-            $($(".fieldset-labels th", $this).get(this)).addClass("sticky");
+          $.each(STICKY_COLUMN_IDS, function() {
+            $("#" + this).addClass("sticky");
           });
         }
       };
 
-      var isVisible = function(index) {
-        if ( VISIBLE_COLUMN_INDEXES ) {
-          return  $.inArray(index+"", VISIBLE_COLUMN_INDEXES) >= 0
+      var isVisible = function(colId) {
+        if ( VISIBLE_COLUMN_IDS ) {
+          return  $.inArray(colId, VISIBLE_COLUMN_IDS) >= 0
         } else {
           return true;
         }
       };
 
       var applyPersistentVisibleColumns = function() {
-        if ( VISIBLE_COLUMN_INDEXES ) {
+        if ( VISIBLE_COLUMN_IDS ) {
           var total_width = 0;
 
           $.each($(".fieldset-labels th", $this), function() {
+            var colId = $(this).attr("id");
             var index = $(this).index();
 
             if ($(this).hasClass("fieldset-label")) {
-              if (isVisible(index)) {
-                total_width += setColumnWidth(index);
+              if (isVisible(colId)) {
+                total_width += setColumnWidth(colId);
               } else {
                 hideColumn(index);
               }
             } else {
-              total_width += setColumnWidth(index);
+              total_width += setColumnWidth(colId);
             }
           });
           $table.width(total_width);
