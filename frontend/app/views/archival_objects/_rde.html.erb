@@ -1,4 +1,5 @@
 <% define_template "rde_row", jsonmodel_definition(:archival_object) do |form, archival_object| %>
+  <% first_row = form.current_context.first == "children[0]" %>
   <tr>
     <td class="status">
       <span class="icon-exclamation-sign invalid"></span>
@@ -139,7 +140,7 @@
     <td class="control-group">
       <div class="btn-group">
         <button class="btn btn-success add-row"><span class="icon-plus icon-white"></span></button>
-        <button class="btn remove-row"><span class="icon-remove"></span></button>
+        <% if !first_row %><button class="btn remove-row"><span class="icon-remove"></span></button><% end %>
       </div>
     </td>
   </tr>
@@ -161,15 +162,16 @@
             </button>
             <div class="dropdown-menu add-rows-form">
               <div><input type="number" class="input-medium" value="1" /></div>
-              <button class="btn btn-small input-medium btn-success" type="button">Add Rows</button>
+              <button class="btn btn-small input-medium btn-primary" type="button">Add Rows</button>
             </div>
           </div>
           <select id="rde_hidden_columns" multiple="multiple" data-i18n-prefix="<%= I18n.t("rde.actions.showhide_prefix") %>" data-i18n-suffix="<%= I18n.t("rde.actions.showhide_suffix") %>" data-i18n-none="<%= I18n.t("rde.actions.showhide_none") %>"></select>
           <button class="btn btn-small fill-column">Fill Column</button>
+          <button class="btn btn-small reorder-columns">Reorder Columns</button>
           <a href="#" id="rde_reset" class="btn btn-small"><%= I18n.t("rde.actions.reset") %></a>
         </p>
 
-        <div class="fill-column-form" style="display: none;">
+        <div class="fill-column-form rde-inline-form" style="display: none;">
           <ul class="nav nav-tabs">
             <li class="active"><a href="#fill_basic" data-toggle="tab">Basic</a></li>
             <li><a href="#fill_sequence" data-toggle="tab">Sequence</a></li>
@@ -191,6 +193,7 @@
                 </div>
                 <div class="form-actions">
                   <button class="btn btn-primary btn-small disabled" disabled="disabled">Apply Basic Fill</button>
+                  <button class="btn btn-small btn-cancel">Cancel</button>
                 </div>
               </fieldset>
             </div>
@@ -221,13 +224,24 @@
                 </div>
                 <div class="form-actions">
                   <button class="btn btn-primary btn-small disabled" disabled="disabled">Apply Sequence</button>
+                  <button class="btn btn-small btn-cancel">Cancel</button>
                 </div>
               </fieldset>
             </div>
           </div>
         </div>
 
-        <table class="table table-striped table-bordered table-condensed" style="width: auto; margin-right: 20px;">
+        <div id="columnReorderForm" class="rde-inline-form" style="display: none;">
+          <select id="columnOrder" multiple="multiple"></select>
+          <a href="JavaScript:void(0);" id="columnOrderUp" class="btn btn-mini"><span class="icon icon-arrow-up"></span></a>
+          <a href="JavaScript:void(0);" id="columnOrderDown" class="btn btn-mini"><span class="icon icon-arrow-down"></span></a>
+          <div class="form-actions">
+            <button class="btn btn-primary btn-small disabled" disabled="disabled">Apply Column Order</button>
+            <button class="btn btn-small btn-cancel">Cancel</button>
+          </div>
+        </div>
+
+        <table id="rdeTable" class="table table-striped table-bordered table-condensed" style="width: auto; margin-right: 20px;">
           <colgroup>
             <col class="status" data-default-width='20' />
             <col class="fieldset-col" data-default-width='150' />
@@ -265,7 +279,7 @@
             <th colspan="1"></th>
           </tr>
           <tr class="fieldset-labels">
-            <th/>
+            <th id="colStatus" />
             <th id="colLevel" class="fieldset-label required sticky"><%= I18n.t("archival_object.level") %></th>
             <th id="colPublish" class="fieldset-label sticky"><%= I18n.t("archival_object.publish") %></th>
             <th id="colTitle" class="fieldset-label conditionally-required"><%= I18n.t("archival_object.title") %></th>
@@ -273,23 +287,23 @@
             <th id="colLang" class="fieldset-label sticky"><%= I18n.t("archival_object.language") %></th>
             <th id="colExpr" class="fieldset-label sticky"><%= I18n.t("date.expression") %></th>
             <th id="colDType" class="fieldset-label sticky"><%= I18n.t("rde.date_type") %></th>
-            <th id="colPublish" class="fieldset-label sticky"><%= I18n.t("date.begin") %></th>
-            <th id="colPublish" class="fieldset-label sticky"><%= I18n.t("date.end") %></th>
-            <th id="colPublish" class="fieldset-label sticky"><%= I18n.t("rde.instance_type") %></th>
-            <th id="colPublish" class="fieldset-label sticky"><%= I18n.t("container.type_1") %></th>
-            <th id="colPublish" class="fieldset-label sticky"><%= I18n.t("container.indicator_1") %></th>
-            <th id="colPublish" class="fieldset-label sticky"><%= I18n.t("container.barcode_1") %></th>
-            <th id="colPublish" class="fieldset-label"><%= I18n.t("container.type_2") %></th>
-            <th id="colPublish" class="fieldset-label"><%= I18n.t("container.indicator_2") %></th>
-            <th id="colPublish" class="fieldset-label"><%= I18n.t("container.type_3") %></th>
-            <th id="colPublish" class="fieldset-label"><%= I18n.t("container.indicator_3") %></th>
-            <th id="colPublish" class="fieldset-label"><%= I18n.t("note._singular") %> 1</th>
-            <th id="colPublish" class="fieldset-label"><%= I18n.t("note_attributes.content") %> 1</th>
-            <th id="colPublish" class="fieldset-label"><%= I18n.t("note._singular") %> 2</th>
-            <th id="colPublish" class="fieldset-label"><%= I18n.t("note_attributes.content") %> 2</th>
-            <th id="colPublish" class="fieldset-label"><%= I18n.t("note._singular") %> 3</th>
-            <th id="colPublish" class="fieldset-label"><%= I18n.t("note_attributes.content") %> 3</th>
-            <th></th>
+            <th id="colDBegin" class="fieldset-label sticky"><%= I18n.t("date.begin") %></th>
+            <th id="colDEnd" class="fieldset-label sticky"><%= I18n.t("date.end") %></th>
+            <th id="colIType" class="fieldset-label sticky"><%= I18n.t("rde.instance_type") %></th>
+            <th id="colCType1" class="fieldset-label sticky"><%= I18n.t("container.type_1") %></th>
+            <th id="colCInd1" class="fieldset-label sticky"><%= I18n.t("container.indicator_1") %></th>
+            <th id="colCBarc1" class="fieldset-label sticky"><%= I18n.t("container.barcode_1") %></th>
+            <th id="colCType2" class="fieldset-label"><%= I18n.t("container.type_2") %></th>
+            <th id="colCInd2" class="fieldset-label"><%= I18n.t("container.indicator_2") %></th>
+            <th id="colCType3" class="fieldset-label"><%= I18n.t("container.type_3") %></th>
+            <th id="colCInd3" class="fieldset-label"><%= I18n.t("container.indicator_3") %></th>
+            <th id="colNType1" class="fieldset-label"><%= I18n.t("note._singular") %> 1</th>
+            <th id="colNCont1" class="fieldset-label"><%= I18n.t("note_attributes.content") %> 1</th>
+            <th id="colNType2" class="fieldset-label"><%= I18n.t("note._singular") %> 2</th>
+            <th id="colNCont2" class="fieldset-label"><%= I18n.t("note_attributes.content") %> 2</th>
+            <th id="colNType3" class="fieldset-label"><%= I18n.t("note._singular") %> 3</th>
+            <th id="colNCont3" class="fieldset-label"><%= I18n.t("note_attributes.content") %> 3</th>
+            <th id="colActions"></th>
           </tr>
           </thead>
           <tbody>
@@ -314,7 +328,7 @@
             </button>
             <div class="dropdown-menu add-rows-form">
               <div><input type="number" class="input-medium" value="1" /></div>
-              <button class="btn btn-small input-medium btn-success" type="button">Add Rows</button>
+              <button class="btn btn-small input-medium btn-primary" type="button">Add Rows</button>
             </div>
           </div>
         </p>

@@ -2,13 +2,14 @@
 //= require jquery.kiketable.colsizable-1.1
 //= require jquery.columnmanager.min
 //= require bootstrap-multiselect
+//= require jquery.dragtable
 
 $(function() {
 
   $.fn.init_rapid_data_entry_form = function($modal, $node) {
     $(this).each(function() {
       var $this = $(this);
-      var $table = $("table", $this);
+      var $table = $("table#rdeTable", $this);
 
       if ($this.hasClass("initialised")) {
         return;
@@ -18,6 +19,7 @@ $(function() {
       var VISIBLE_COLUMN_IDS =  $.cookie("rde.visible") ? JSON.parse($.cookie("rde.visible")) : null;
       var STICKY_COLUMN_IDS =  $.cookie("rde.sticky") ? JSON.parse($.cookie("rde.sticky")) : null;
       var COLUMN_WIDTHS =  $.cookie("rde.widths") ? JSON.parse($.cookie("rde.widths")) : null;
+      var COLUMN_ORDER =  $.cookie("rde.order") ? JSON.parse($.cookie("rde.order")) : null;
 
 
       var index = 0;
@@ -50,9 +52,11 @@ $(function() {
         $.cookie("rde.visible", null);
         $.cookie("rde.widths", null);
         $.cookie("rde.sticky", null);
+        $.cookie("rde.order", null);
         VISIBLE_COLUMN_IDS = null;
         STICKY_COLUMN_IDS = null;
         COLUMN_WIDTHS = null;
+        COLUMN_ORDER = null;
 
         // reload the form
         $(document).triggerHandler("rdeload.aspace", [$node, $modal]);
@@ -164,7 +168,7 @@ $(function() {
         }
       });
 
-      $modal.on("click", "th.fieldset-label", function(event) {
+      /*$modal.on("click", "th.fieldset-label", function(event) {
         $(this).toggleClass("sticky");
         var sticky = [];
         $("table th.sticky", $this).each(function() {
@@ -172,7 +176,7 @@ $(function() {
         });
         STICKY_COLUMN_IDS = sticky;
         $.cookie("rde.sticky", JSON.stringify(STICKY_COLUMN_IDS));
-      });
+      });*/
 
       $modal.on("click", "[data-dismiss]", function(event) {
         $modal.modal("hide");
@@ -220,7 +224,7 @@ $(function() {
           }
         });
 
-        // add sorting
+        // add ability to resize columns
         $table.kiketable_colsizable({
           dragCells: "tr.fieldset-labels th.fieldset-label",
           dragMove: true
@@ -232,10 +236,14 @@ $(function() {
 
         // give the columns an id
         $("table thead .fieldset-labels th").each(function(i, col) {
-          $(col).attr("id", "rdecol"+i);
+          if (!$(col).attr("id")) {
+            $(col).attr("id", "rdecol"+i);
+          }
           $($("table colgroup col").get(i)).data("id", $(col).attr("id"));
         });
 
+        applyColumnOrder();
+        initColumnReorderFeature();
         applyPersistentStickyColumns();
         initColumnShowHideWidget();
         initFillFeature();
@@ -405,6 +413,108 @@ $(function() {
         setupSequenceFillForm();
       };
 
+      var persistColumnOrder = function() {
+        var column_ids = [];
+        $("table .fieldset-labels th", $this).each(function() {
+          column_ids.push($(this).attr("id"));
+        });
+        COLUMN_ORDER = column_ids;
+        $.cookie("rde.order", JSON.stringify(COLUMN_ORDER));
+      };
+
+      var applyColumnOrder = function() {
+        if (COLUMN_ORDER === null) {
+          persistColumnOrder();
+        } else {
+          // apply order from cookie
+          var $row = $("tr.fieldset-labels", $table);
+          var $colgroup = $("colgroup", $table);
+
+          $.each(COLUMN_ORDER, function(targetIndex, colId) {
+            var $th = $("#" + colId, $row);
+            var currentIndex = $th.index();
+            var $col = $($("col", $colgroup).get(currentIndex));
+
+            if (targetIndex !== currentIndex) {
+                $th.insertBefore($("th", $row).get(targetIndex));
+                $col.insertBefore($("col", $colgroup).get(targetIndex));
+                $("tbody tr", $table).each(function(i, $tr) {
+                  $($("td", $tr).get(currentIndex)).insertBefore($("td", $tr).get(targetIndex));
+                });
+            }
+          });
+        }
+      };
+
+      var initColumnReorderFeature = function() {
+        var $reorderContainer = $("#columnReorderForm", $modal);
+        var $btnReorderToggle = $("button.reorder-columns", $modal);
+        var $select = $("#columnOrder", $reorderContainer);
+        var $btnApplyOrder = $(".btn-primary", $reorderContainer);
+
+
+        // Setup global events
+        $btnReorderToggle.click(function(event) {
+          event.preventDefault();
+          event.stopPropagation();
+
+          $btnReorderToggle.toggleClass("active");
+          $reorderContainer.slideToggle();
+        });
+
+        populateColumnSelector($select);
+        $select.attr("size", $("option", $select).length / 2);
+
+        var handleMove = function(direction) {
+          var $options = $("option:selected", $select);
+          if ($options.length) {
+            if (direction === "up") {
+              $options.first().prev().before($options);
+            } else {
+              $options.last().next().after($options);
+            }
+          }
+          $btnApplyOrder.removeAttr("disabled").removeClass("disabled");
+        };
+
+        var resetForm = function() {
+          $btnReorderToggle.toggleClass("active");
+          $reorderContainer.slideToggle(function() {
+            $btnApplyOrder.addClass("disabled").attr("disabled", "disabled");
+            // reset the select
+            $select.html("");
+            populateColumnSelector($select);
+          });
+        }
+
+        $('#columnOrderUp', $reorderContainer).bind('click', function() {
+          handleMove("up");
+        });
+        $('#columnOrderDown', $reorderContainer).bind('click', function() {
+          handleMove("down");
+        });
+        $(".btn-cancel", $reorderContainer).click(function(event) {
+          event.preventDefault();
+          event.stopPropagation();
+
+          resetForm();
+        });
+        $btnApplyOrder.click(function(event) {
+          event.preventDefault();
+          event.stopPropagation();
+
+          COLUMN_ORDER = ["colStatus"];
+          $("option", $select).each(function() {
+            COLUMN_ORDER.push($(this).val());
+          });
+          COLUMN_ORDER.push("colActions");
+
+          applyColumnOrder();
+          resetForm();
+          persistColumnOrder();
+        });
+      };
+
       var populateColumnSelector = function($select, select_func, filter_func) {
         filter_func = filter_func || function() {return true;};
         select_func = select_func || function() {return false;};
@@ -506,7 +616,7 @@ $(function() {
         var total_width = 0;
 
         $("table colgroup col", $this).each(function(i, el) {
-          var colW = getColumnWidth($(el).attr("id"));
+          var colW = getColumnWidth($(el).data("id"));
           $(el).width(colW);
           total_width += colW;
         });
