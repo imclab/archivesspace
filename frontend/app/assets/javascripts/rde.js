@@ -2,7 +2,6 @@
 //= require jquery.kiketable.colsizable-1.1
 //= require jquery.columnmanager.min
 //= require bootstrap-multiselect
-//= require jquery.dragtable
 
 $(function() {
 
@@ -168,7 +167,7 @@ $(function() {
         }
       });
 
-      /*$modal.on("click", "th.fieldset-label", function(event) {
+      $modal.on("click", "th.fieldset-label", function(event) {
         $(this).toggleClass("sticky");
         var sticky = [];
         $("table th.sticky", $this).each(function() {
@@ -176,7 +175,7 @@ $(function() {
         });
         STICKY_COLUMN_IDS = sticky;
         $.cookie("rde.sticky", JSON.stringify(STICKY_COLUMN_IDS));
-      });*/
+      });
 
       $modal.on("click", "[data-dismiss]", function(event) {
         $modal.modal("hide");
@@ -256,9 +255,14 @@ $(function() {
         var $sourceRow = $("table tbody tr:first", $this);
 
         // Setup global events
-        $("button.fill-column", $modal).click(function(event) {
+        $btnFillFormToggle.click(function(event) {
           event.preventDefault();
           event.stopPropagation();
+
+          // toggle other panel if it is active
+          if (!$(this).hasClass("active")) {
+            $(".active", $(this).closest(".btn-group")).trigger("click");
+          }
 
           $btnFillFormToggle.toggleClass("active");
           $fillFormsContainer.slideToggle();
@@ -457,6 +461,11 @@ $(function() {
         $btnReorderToggle.click(function(event) {
           event.preventDefault();
           event.stopPropagation();
+
+          // toggle other panel if it is active
+          if (!$(this).hasClass("active")) {
+            $(".active", $(this).closest(".btn-group")).trigger("click");
+          }
 
           $btnReorderToggle.toggleClass("active");
           $reorderContainer.slideToggle();
