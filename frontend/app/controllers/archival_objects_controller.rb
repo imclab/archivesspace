@@ -132,7 +132,7 @@ class ArchivalObjectsController < ApplicationController
     if params[:archival_record_children].blank? or params[:archival_record_children]["children"].blank?
 
       @archival_record_children = ArchivalObjectChildren.new
-      flash.now[:error] = "No rows entered"
+      flash.now[:error] = I18n.t("rde.messages.no_rows")
 
     else
       children_data = cleanup_params_for_schema(params[:archival_record_children], JSONModel(:archival_record_children).schema)
@@ -154,8 +154,8 @@ class ArchivalObjectsController < ApplicationController
 
   def generate_sequence
     errors = []
-    errors.push("From is required") if params[:from].blank?
-    errors.push("To is required") if params[:to].blank?
+    errors.push(I18n.t("rde.fill_column.sequence_from_required")) if params[:from].blank?
+    errors.push(I18n.t("rde.fill_column.sequence_to_required")) if params[:to].blank?
 
     return render :json => {"errors" => errors} if errors.length > 0
 
@@ -163,7 +163,7 @@ class ArchivalObjectsController < ApplicationController
 
     render :json => {
       "values" => values,
-      "summary" => "#{values.count} items in the sequence:"
+      "summary" => I18n.t("rde.fill_column.sequence_summary", :count => values.count)
     }
   end
 
