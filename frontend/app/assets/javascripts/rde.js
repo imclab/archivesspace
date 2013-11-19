@@ -384,7 +384,8 @@ $(function() {
                   }
 
                   // Good to go. Apply values.
-                  var $targetCells = $("table tbody tr td:nth-child("+(parseInt($inputTargetColumn.val())+1)+")", $this);
+                  var targetIndex = $("#"+$inputTargetColumn.val()).index();
+                  var $targetCells = $("table tbody tr td:nth-child("+(targetIndex+1)+")", $this);
                   $.each(json.values, function(i, val) {
                     if (i > $targetCells.length) {
                       return;
