@@ -273,39 +273,39 @@
           </colgroup>
           <thead>
           <tr class="sections">
-            <th colspan="1"></th>
-            <th colspan="5"><%= I18n.t("rde.sections.basic_information") %></th>
-            <th colspan="4" class="conditionally-required"><%= I18n.t("rde.sections.date") %></th>
-            <th colspan="8"><%= I18n.t("rde.sections.instance") %></th>
-            <th colspan="6"><%= I18n.t("rde.sections.notes") %></th>
-            <th colspan="1"></th>
+            <th data-id="empty" colspan="1"></th>
+            <th data-id="basic" colspan="5"><%= I18n.t("rde.sections.basic_information") %></th>
+            <th data-id="date" colspan="4" class="conditionally-required"><%= I18n.t("rde.sections.date") %></th>
+            <th data-id="instance" colspan="8"><%= I18n.t("rde.sections.instance") %></th>
+            <th data-id="note" colspan="6"><%= I18n.t("rde.sections.notes") %></th>
+            <th data-id="empty" colspan="1"></th>
           </tr>
           <tr class="fieldset-labels">
-            <th id="colStatus" />
-            <th id="colLevel" class="fieldset-label required sticky"><%= I18n.t("archival_object.level") %></th>
-            <th id="colPublish" class="fieldset-label sticky"><%= I18n.t("archival_object.publish") %></th>
-            <th id="colTitle" class="fieldset-label conditionally-required"><%= I18n.t("archival_object.title") %></th>
-            <th id="colCompId" class="fieldset-label"><%= I18n.t("archival_object.component_id") %></th>
-            <th id="colLang" class="fieldset-label sticky"><%= I18n.t("archival_object.language") %></th>
-            <th id="colExpr" class="fieldset-label sticky"><%= I18n.t("date.expression") %></th>
-            <th id="colDType" class="fieldset-label sticky"><%= I18n.t("rde.date_type") %></th>
-            <th id="colDBegin" class="fieldset-label sticky"><%= I18n.t("date.begin") %></th>
-            <th id="colDEnd" class="fieldset-label sticky"><%= I18n.t("date.end") %></th>
-            <th id="colIType" class="fieldset-label sticky"><%= I18n.t("rde.instance_type") %></th>
-            <th id="colCType1" class="fieldset-label sticky"><%= I18n.t("container.type_1") %></th>
-            <th id="colCInd1" class="fieldset-label sticky"><%= I18n.t("container.indicator_1") %></th>
-            <th id="colCBarc1" class="fieldset-label sticky"><%= I18n.t("container.barcode_1") %></th>
-            <th id="colCType2" class="fieldset-label"><%= I18n.t("container.type_2") %></th>
-            <th id="colCInd2" class="fieldset-label"><%= I18n.t("container.indicator_2") %></th>
-            <th id="colCType3" class="fieldset-label"><%= I18n.t("container.type_3") %></th>
-            <th id="colCInd3" class="fieldset-label"><%= I18n.t("container.indicator_3") %></th>
-            <th id="colNType1" class="fieldset-label"><%= I18n.t("note._singular") %> 1</th>
-            <th id="colNCont1" class="fieldset-label"><%= I18n.t("note_attributes.content") %> 1</th>
-            <th id="colNType2" class="fieldset-label"><%= I18n.t("note._singular") %> 2</th>
-            <th id="colNCont2" class="fieldset-label"><%= I18n.t("note_attributes.content") %> 2</th>
-            <th id="colNType3" class="fieldset-label"><%= I18n.t("note._singular") %> 3</th>
-            <th id="colNCont3" class="fieldset-label"><%= I18n.t("note_attributes.content") %> 3</th>
-            <th id="colActions"></th>
+            <th id="colStatus" data-section="empty" />
+            <th id="colLevel" class="fieldset-label required sticky" data-section="basic"><%= I18n.t("archival_object.level") %></th>
+            <th id="colPublish" class="fieldset-label sticky" data-section="basic"><%= I18n.t("archival_object.publish") %></th>
+            <th id="colTitle" class="fieldset-label conditionally-required" data-section="basic"><%= I18n.t("archival_object.title") %></th>
+            <th id="colCompId" class="fieldset-label" data-section="basic"><%= I18n.t("archival_object.component_id") %></th>
+            <th id="colLang" class="fieldset-label sticky" data-section="basic"><%= I18n.t("archival_object.language") %></th>
+            <th id="colExpr" class="fieldset-label sticky" data-section="date"><%= I18n.t("date.expression") %></th>
+            <th id="colDType" class="fieldset-label sticky" data-section="date"><%= I18n.t("rde.date_type") %></th>
+            <th id="colDBegin" class="fieldset-label sticky" data-section="date"><%= I18n.t("date.begin") %></th>
+            <th id="colDEnd" class="fieldset-label sticky" data-section="date"><%= I18n.t("date.end") %></th>
+            <th id="colIType" class="fieldset-label sticky" data-section="instance"><%= I18n.t("rde.instance_type") %></th>
+            <th id="colCType1" class="fieldset-label sticky" data-section="instance"><%= I18n.t("container.type_1") %></th>
+            <th id="colCInd1" class="fieldset-label sticky" data-section="instance"><%= I18n.t("container.indicator_1") %></th>
+            <th id="colCBarc1" class="fieldset-label sticky" data-section="instance"><%= I18n.t("container.barcode_1") %></th>
+            <th id="colCType2" class="fieldset-label" data-section="instance"><%= I18n.t("container.type_2") %></th>
+            <th id="colCInd2" class="fieldset-label" data-section="instance"><%= I18n.t("container.indicator_2") %></th>
+            <th id="colCType3" class="fieldset-label" data-section="instance"><%= I18n.t("container.type_3") %></th>
+            <th id="colCInd3" class="fieldset-label" data-section="instance"><%= I18n.t("container.indicator_3") %></th>
+            <th id="colNType1" class="fieldset-label" data-section="note"><%= I18n.t("note._singular") %> 1</th>
+            <th id="colNCont1" class="fieldset-label" data-section="note"><%= I18n.t("note_attributes.content") %> 1</th>
+            <th id="colNType2" class="fieldset-label" data-section="note"><%= I18n.t("note._singular") %> 2</th>
+            <th id="colNCont2" class="fieldset-label" data-section="note"><%= I18n.t("note_attributes.content") %> 2</th>
+            <th id="colNType3" class="fieldset-label" data-section="note"><%= I18n.t("note._singular") %> 3</th>
+            <th id="colNCont3" class="fieldset-label" data-section="note"><%= I18n.t("note_attributes.content") %> 3</th>
+            <th id="colActions" data-section="empty"></th>
           </tr>
           </thead>
           <tbody>

@@ -20,6 +20,11 @@ $(function() {
       var COLUMN_WIDTHS =  $.cookie("rde.widths") ? JSON.parse($.cookie("rde.widths")) : null;
       var COLUMN_ORDER =  $.cookie("rde.order") ? JSON.parse($.cookie("rde.order")) : null;
 
+      // store section data
+      var SECTION_DATA = {};
+      $(".sections th", $table).each(function() {
+        SECTION_DATA[$(this).data("id")] = $(this).text();
+      });
 
       var index = 0;
 
@@ -433,7 +438,10 @@ $(function() {
         } else {
           // apply order from cookie
           var $row = $("tr.fieldset-labels", $table);
+          var $sectionRow = $("tr.sections", $table);
           var $colgroup = $("colgroup", $table);
+
+          $sectionRow.html("");
 
           $.each(COLUMN_ORDER, function(targetIndex, colId) {
             var $th = $("#" + colId, $row);
@@ -446,6 +454,16 @@ $(function() {
                 $("tbody tr", $table).each(function(i, $tr) {
                   $($("td", $tr).get(currentIndex)).insertBefore($("td", $tr).get(targetIndex));
                 });
+            }
+
+            // build the section row cells
+            if (targetIndex === 0) {
+              $sectionRow.append($("<th>").data("id", "empty").attr("colspan", "1"));
+            } else if ($("th", $sectionRow).last().data("id") === $th.data("section")) {
+              var $lastTh = $("th", $sectionRow).last();
+              $lastTh.attr("colspan", parseInt($lastTh.attr("colspan"))+1);
+            } else {
+              $sectionRow.append($("<th>").data("id", $th.data("section")).attr("colspan", "1").text(SECTION_DATA[$th.data("section")]));
             }
           });
         }
